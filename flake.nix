@@ -49,6 +49,14 @@
               # Provide helper function
               prev.writeTextFile;
 
+            mkCommand = self.lib.mkNushellCommand
+              # Provide Nushell package
+              prev.nushell
+              # Provide helper function
+              prev.writeTextFile
+              # Provide helper function
+              prev.lib.strings.makeBinPath;
+
             # TODO: mkShell
           };
         };
@@ -57,7 +65,8 @@
       lib = {
         inherit (import ./lib/nuenv.nix)
           mkNushellDerivation
-          mkNushellScript;
+          mkNushellScript
+          mkNushellCommand;
       };
 
       devShells = forAllSystems ({ pkgs, system }: {
