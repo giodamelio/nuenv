@@ -94,6 +94,7 @@
     , runtimeInputs
     , text
     , description ? null
+    , args ? []
     , flags ? {}
     , bin ? name
     , subCommands ? {}
@@ -125,12 +126,18 @@
       ];
 
       # Convert an attrset of flags to a string
-      flagsToString = flags: "\n" + (mapAttrsToString flags flagToString) + "\n";
+      flagsToString = flags: mapAttrsToString flags flagToString;
+
+      # Convert an array of args to a string
+      argsToString = args: builtins.concatStringsSep "\n" args;
 
       # Convert a command to a string
-      commandToString = name: {text, description ? null, flags ? null}: ''
+      commandToString = name: {text, description ? null, flags ? null, args ? null}: ''
         ${toStringOrEmpty description (prepend "# ")}
-        def "main${toStringOrEmpty name (prepend " ")}" [${toStringOrEmpty flags flagsToString}] {
+        def "main${toStringOrEmpty name (prepend " ")}" [
+          ${toStringOrEmpty args argsToString}
+          ${toStringOrEmpty flags flagsToString}
+        ] {
           ${text}
         }
       '';
@@ -139,7 +146,7 @@
       subCommandsString = mapAttrsToString subCommands commandToString;
 
       # Build the main command
-      mainCommandString = commandToString null { inherit text description flags; };
+      mainCommandString = commandToString null { inherit text description flags args; };
     in
     writeTextFile {
       inherit name;
